@@ -19,7 +19,7 @@ public class UploadFileService {
             Path filePath = uploadDirectory.resolve(fileName);
             Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
         }catch(IOException e){
-            throw new RuntimeException("Issue in creating file directory");
+            throw new RuntimeException("Error in creating file directory");
         }
     }
 }

@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 import org.apache.tomcat.util.buf.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -26,20 +27,28 @@ public class TestTask {
     RestTemplate restTemplate;
 
     String baseUrl = "http://localhost:8080";
-    
+    int time = 0;
+    int count = 0;
     @GetMapping("/upload/testTask")
-    void upload() throws IOException{
-       Stream<Path> fileList =Files.list(Paths.get("C:\\Users\\Julio\\Desktop\\fichiersJson"));   
+     public ResponseEntity<String> upload() throws IOException{
+       Stream<Path> fileList = Files.list(Paths.get("C:\\Users\\Julio\\Desktop\\fichiersJson"));   
         fileList.forEach(
            file->{
-            MultiValueMap filesToUpload = new LinkedMultiValueMap<>(); 
+            MultiValueMap<String, Object> filesToUpload = new LinkedMultiValueMap<>(); 
             try {
                 filesToUpload.add("file", new UrlResource(file.toAbsolutePath().toUri()));
+                long startTime = System.currentTimeMillis();
                 restTemplate.postForEntity(baseUrl+ "/file/upload", filesToUpload, Void.class);
+                long stopTime = System.currentTimeMillis(); 
+                long elapsedTime = stopTime - startTime;
+                time = (int) (time + elapsedTime);  
+                count = count + 1; 
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
            }
        );
+       fileList.close();
+       return new ResponseEntity<>("Avarage time: " + time/count + " ms", HttpStatus.OK);
     }
 }
